@@ -63,6 +63,8 @@ public class ConsoleUI {
                 System.out.println("Service error: "+ex.getMessage());
             }catch(IllegalArgumentException ex){
                 System.out.println("Invalid input: "+ex.getMessage());
+            }catch(UnsupportedOperationException ex){
+                System.out.println("Operation unavailable: "+ex.getMessage());
             }
         }
     }
