@@ -2,11 +2,7 @@ package repository;
 import domain.Entity;
 import exceptions.RepositoryException;
 import validation.Validator;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
-
+import java.util.*;
 /**Generic in memory repository with injectable validation strategy. */
 public class InMemoryRepository<ID, T extends Entity<ID>> implements Repository<ID,T> {
     protected final Map<ID,T> entities=new LinkedHashMap<>();
@@ -26,7 +22,7 @@ public class InMemoryRepository<ID, T extends Entity<ID>> implements Repository<
         }
         return Optional.ofNullable(entities.get(id));
     }
-    @Override public Collection<T> findAll(){return java.util.List.copyOf(entities.values());}
+    @Override public Collection<T> findAll(){return new ArrayList<>(entities.values());}
     @Override public void delete(ID id){
         if(id==null){
             throw new IllegalArgumentException("ID cannot be null.");

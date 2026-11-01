@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -16,7 +17,7 @@ public abstract class AbstractFileRepository<ID, E extends Entity<ID>> extends I
     private final Path filePath;
     protected AbstractFileRepository(Validator<E> validator,String fileName){
         super(validator);
-        this.filePath=Path.of(fileName);
+        this.filePath= Paths.get(fileName);
     }
     protected abstract E extractEntity(String line);
     protected abstract String createEntityAsString(E entity);
@@ -32,15 +33,13 @@ public abstract class AbstractFileRepository<ID, E extends Entity<ID>> extends I
         }
         try(Stream<String> lines=Files.lines(filePath,StandardCharsets.UTF_8)){
             List<String> content=lines.collect(Collectors.toList());
-            IntStream.range(0,content.size()).filter(index->!content.get(index).isBlank())
+            IntStream.range(0,content.size()).filter(index->!content.get(index).trim().isEmpty())
                     .forEach(index->{
                         String line=content.get(index);
                         try{
                             E entity=extractEntity(line);
                             super.save(entity);
-                        }catch(IllegalArgumentException ex){
-                            throw new RepositoryException("Invalid line "+(index+1)+" in "+filePath+": "+ex.getMessage());
-                        }catch(exceptions.ValidationException ex){
+                        }catch(RuntimeException ex){
                             throw new RepositoryException("Invalid line "+(index+1)+" in "+filePath+": "+ex.getMessage(),ex);
                         }
                     });

@@ -9,7 +9,7 @@ import java.time.format.DateTimeParseException;
  * File repository for friendships.
  *
  * Store friendships in the format:
- * firstUserId;secondUserId;secondUserId;friendshipDate
+ * firstUserId;secondUserId;friendshipDate
  */
 public class PrietenieFileRepository extends AbstractFileRepository<Tuple<Long,Long>,Friendship> {
     /**

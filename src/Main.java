@@ -26,7 +26,7 @@ public class Main {
             Repository<Tuple<Long,Long>,Friendship> friendships=factory.createPrietenieRepository(new FriendshipValidator(users));
             SocialNetworkService service=new SocialNetworkService(users,friendships);
             new ConsoleUI(service).run();
-        }catch(RepositoryException e){
+        }catch(RepositoryException | IllegalStateException e){
             System.err.println("ERROR: application could not be started.");
             System.err.println(e.getMessage());
         }

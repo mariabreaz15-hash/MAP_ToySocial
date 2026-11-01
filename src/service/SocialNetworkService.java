@@ -5,6 +5,7 @@ import exceptions.ServiceException;
 import repository.Repository;
 import java.util.*;
 import domain.Tuple;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 /**Application use cases and graph algorithms for the social network. */
 public class SocialNetworkService {
@@ -60,7 +61,7 @@ public class SocialNetworkService {
     public void removeFriendship(long a,long b){
         checkUser(a); checkUser(b);
         Tuple<Long,Long> id=new Tuple<>(Math.min(a,b),Math.max(a,b));
-        if(friendships.findOne(id).isEmpty()){
+        if(!friendships.findOne(id).isPresent()){
             throw new ServiceException("Friendship does not exists.");
         }
         friendships.delete(id);
@@ -77,7 +78,7 @@ public class SocialNetworkService {
             }
         }
         return graph;*/
-        return users.findAll().stream()
+        /*return users.findAll().stream()
                 .map(User::getId).collect(Collectors.toMap(
                         id->id,id->friendships.findAll()
                                 .stream().filter(f->
@@ -86,7 +87,17 @@ public class SocialNetworkService {
                                 ?f.getSecondUserId():f.getFirstUserId())
                                 .collect(Collectors.toSet()),(first,second)->first,
                         LinkedHashMap::new
-                ));
+                ));*/
+        Map<Long,Set<Long>> graph=users.findAll().stream().map(User::getId)
+                .collect(Collectors.toMap(id->id,
+                id->new LinkedHashSet<Long>(),(first,second)->first,
+                        LinkedHashMap::new));
+        friendships.findAll().stream().filter(f->graph.containsKey(f.getFirstUserId())
+        &&graph.containsKey(f.getSecondUserId())).forEach(f->{
+            graph.get(f.getFirstUserId()).add(f.getSecondUserId());
+            graph.get(f.getSecondUserId()).add(f.getFirstUserId());
+        });
+        return graph;
     }
     private List<Set<Long>> components(Map<Long,Set<Long>> graph){
         Set<Long> unassigned=new LinkedHashSet<>(graph.keySet());
@@ -235,5 +246,13 @@ public class SocialNetworkService {
     private int diameter(Set<Long> component,Map<Long,Set<Long>> graph){
         return component.stream().mapToInt(id->eccentricity(id,graph))
                 .max().orElse(0);
+    }
+    public List<User> getUsersByCombinedCriteria(String firstName,String lastName,long minimumId){
+        Predicate<User> firstNameCriteria=CriteriiUtilizator.prenume(firstName);
+        Predicate<User> lastNameCriteria=CriteriiUtilizator.nume(lastName);
+        Predicate<User> idCriteria=CriteriiUtilizator.idMaiMareDecat(minimumId);
+        Predicate<User> combinedCriteria=firstNameCriteria.and(lastNameCriteria).or(idCriteria)
+                .negate();
+        return users.findAll(combinedCriteria);
     }
 }

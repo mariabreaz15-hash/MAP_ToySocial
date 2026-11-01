@@ -45,10 +45,10 @@ public class FriendshipValidator implements Validator<Friendship> {
         if(friendship.getFriendshipDate()==null){
             throw new ValidationException("Friendship date cannot be null.");
         }
-        if(userRepository.findOne(firstId).isEmpty()){
+        if(!userRepository.findOne(firstId).isPresent()){
             throw new ValidationException("User with ID "+firstId+" does not exist.");
         }
-        if(userRepository.findOne(secondId).isEmpty()){
+        if(!userRepository.findOne(secondId).isPresent()){
             throw new ValidationException("User with ID "+secondId+" does not exist.");
         }
     }

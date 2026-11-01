@@ -7,11 +7,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Supplier;
-
 /**
  * Factory responsible for creating repositories
  * according to the application configuration.
@@ -24,7 +24,7 @@ public class RepositoryFactory {
      */
     public RepositoryFactory(){
         properties=new Properties();
-        Path configPath=Path.of("src/main/resources/config.properties");
+        Path configPath= Paths.get("src/main/resources/config.properties");
         try(InputStream input=Files.newInputStream(configPath)){
             properties.load(input);
         }catch(IOException e){
@@ -77,7 +77,7 @@ public class RepositoryFactory {
         creators.put(RepositoryType.MEMORY,
                 ()->new InMemoryRepository<>(validator));
         creators.put(RepositoryType.FILE,
-                ()->new PrietenieFileRepository(getRequiredProperty("file.prieteni"),
+                ()->new PrietenieFileRepository(getRequiredProperty("file.prietenii"),
                         validator));
         creators.put(RepositoryType.DATABASE,
                 ()->new PrietenieDbRepository(validator,
