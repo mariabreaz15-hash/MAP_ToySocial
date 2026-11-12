@@ -1,5 +1,4 @@
 2;Darius;Istoc
-3;Simion;Breaz
 5;Mihai;Stan
 6;Elena;Dumitrescu
 15;Valeria;Breaz
