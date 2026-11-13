@@ -65,7 +65,7 @@ public class UserFileRepository extends InMemoryRepository<Long,User> {
         try{Files.write(path,lines,StandardCharsets.UTF_8);}
         catch(IOException ex){throw new RepositoryException("Cannot write user file: "+path,ex);}
     }
-    @Override public void save(User user){super.save(user); persist();}
-    @Override public void delete(Long id){super.delete(id); persist();}
-    @Override public void update(User user){super.update(user); persist();}
+    @Override public User save(User user){User result=super.save(user); persist(); return result;}
+    @Override public User delete(Long id){User result=super.delete(id); if(result != null) persist(); return result;}
+    @Override public User update(User user){User result=super.update(user); if(result == null) persist(); return result;}
 }

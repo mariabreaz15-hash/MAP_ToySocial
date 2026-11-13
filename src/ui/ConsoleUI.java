@@ -1,6 +1,7 @@
 package ui;
 import service.SocialNetworkService;
 import java.util.Scanner;
+import domain.User;
 /** Minimal interactive console interface. */
 public class ConsoleUI {
     private final SocialNetworkService service;
@@ -28,8 +29,8 @@ public class ConsoleUI {
                     case "2" :
                         System.out.print("First name: "); String first=scanner.nextLine();
                         System.out.print("Last name: "); String last=scanner.nextLine();
-                        long generatedId=service.addUser(first,last);
-                        System.out.println("User added. Generated ID: "+generatedId);
+                        User savedUser=service.addUser(first,last);
+                        System.out.println("User added. Generated ID: "+savedUser.getId());
                         break;
                     case "3" : service.removeUser(readId("ID: ")); System.out.println("User removed."); break;
                     case "4" :

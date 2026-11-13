@@ -85,18 +85,21 @@ public abstract class AbstractFileRepository<ID, E extends Entity<ID>> extends I
         }
     }
     @Override
-    public void save(E entity){
+    public E save(E entity){
         super.save(entity);
         writeToFile();
+        return entity;
     }
     @Override
-    public void delete(ID id){
+    public E delete(ID id){
         super.delete(id);
         writeToFile();
+        return entities.get(id);
     }
     @Override
-    public void update(E entity){
+    public E update(E entity){
         super.update(entity);
         writeToFile();
+        return entity;
     }
 }

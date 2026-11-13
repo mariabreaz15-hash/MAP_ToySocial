@@ -1,0 +1,21 @@
+plugins{
+    java
+    application
+}
+repositories{
+    mavenCentral()
+}
+dependencies{
+    implementation("org.postgresql:postgresql:42.7.7")
+}
+application{
+    mainClass.set("Main")
+}
+sourceSets{
+    main{
+        java{
+            setSrcDirs(listOf("src"))
+            exclude("main/**")
+        }
+    }
+}

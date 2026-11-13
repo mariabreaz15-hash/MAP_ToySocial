@@ -36,3 +36,8 @@ bin/
 
 ### Java ###
 *.class
+
+#PostgreSQL configuration
+/src/main/resources/config.properties
+.gradle/
+build/

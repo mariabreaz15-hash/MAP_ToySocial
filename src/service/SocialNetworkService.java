@@ -24,15 +24,14 @@ public class SocialNetworkService {
      * @return the generated ID
      * @throws ServiceException if no more IDs are available
      */
-    public long addUser(String firstName,String lastName){
-        long maxId=users.findAll().stream().map(User::getId).max(Long::compareTo).orElse(0L);
+    public User addUser(String firstName,String lastName){
+        /*long maxId=users.findAll().stream().map(User::getId).max(Long::compareTo).orElse(0L);
         if(maxId==Long.MAX_VALUE){
             throw new ServiceException("No more user IDs available.");
         }
-        long newId=maxId+1;
-        User newUser=new User(newId,firstName,lastName);
-        users.save(newUser);
-        return newId;
+        long newId=maxId+1;*/
+        User newUser=new User(null,firstName,lastName);
+        return users.save(newUser);
     }
     public void updateUser(long id,String firstName,String lastName){
         users.update(new User(id,firstName,lastName));
