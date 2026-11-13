@@ -46,7 +46,7 @@ public class RepositoryFactory {
     public Repository<Long,User> createUtilizatorRepository(Validator<User> validator){
         Map<RepositoryType,Supplier<Repository<Long,User>>> creators=new EnumMap<>(RepositoryType.class);
         creators.put(RepositoryType.MEMORY,
-                ()->new InMemoryRepository<>(validator));
+                ()->new UtilizatorInMemoryRepository(validator));
         creators.put(RepositoryType.FILE,
                 ()->new UtilizatorFileRepository(getRequiredProperty("file.utilizatori"),
                         validator));

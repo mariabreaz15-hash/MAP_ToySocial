@@ -51,4 +51,25 @@ public class UtilizatorFileRepository extends AbstractFileRepository<Long,User>{
     protected String createEntityAsString(User user){
         return user.getId()+";"+user.getFirstName()+";"+user.getLastName();
     }
+    @Override
+    public User save(User user){
+        if(user==null){
+            throw new IllegalArgumentException("User cannot be null");
+        }
+        if(user.getId()!=null){
+            return super.save(user);
+        }
+        long maxId=0L;
+        for(User existingUser : findAll()){
+            if(existingUser.getId()>maxId){
+                maxId=existingUser.getId();
+            }
+        }
+        if(maxId==Long.MAX_VALUE){
+            throw new exceptions.RepositoryException("No more user IDs available.");
+        }
+        long newId=maxId+1;
+        User savedUser=new User(newId,user.getFirstName(),user.getLastName());
+        return super.save(savedUser);
+    }
 }

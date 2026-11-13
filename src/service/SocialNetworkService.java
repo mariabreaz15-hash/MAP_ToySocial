@@ -34,7 +34,11 @@ public class SocialNetworkService {
         return users.save(newUser);
     }
     public void updateUser(long id,String firstName,String lastName){
-        users.update(new User(id,firstName,lastName));
+        User user=new User(id,firstName,lastName);
+        User result=users.update(user);
+        if(result!=null){
+            throw new ServiceException("User "+id+" does not exist.");
+        }
     }
     public void removeUser(long id){
         checkUser(id);

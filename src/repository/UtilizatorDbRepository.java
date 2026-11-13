@@ -70,7 +70,7 @@ public class UtilizatorDbRepository implements Repository<Long,User>{
         PreparedStatement statement=connection.prepareStatement(sql)){
             statement.setString(1,user.getFirstName());
             statement.setString(2,user.getLastName());
-            statement.setLong(1,user.getId());
+            statement.setLong(3,user.getId());
             int affectedRows=statement.executeUpdate();
             return affectedRows == 0 ? user : null;
         }catch(SQLException e){
