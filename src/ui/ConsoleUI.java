@@ -2,6 +2,8 @@ package ui;
 import service.SocialNetworkService;
 import java.util.Scanner;
 import domain.User;
+import util.paging.Page;
+
 /** Minimal interactive console interface. */
 public class ConsoleUI {
     private final SocialNetworkService service;
@@ -10,6 +12,92 @@ public class ConsoleUI {
     private long readId(String label){
         System.out.print(label);
         return Long.parseLong(scanner.nextLine().trim());
+    }
+
+    /**
+     * Displays database users with next and previous navigation.
+     *
+     * @param pageSize maximum number of users per page
+     */
+    private void showUsersPaginated(int pageSize) {
+        int pageNumber = 0;
+        while (true) {
+            Page<User> page = service.getUsersPage(pageNumber, pageSize);
+            long total = page.getTotalNumberOfElements();
+            long totalPages = total / pageSize + (total % pageSize == 0 ? 0 : 1);
+            System.out.println("\nUsers:");
+            if (page.getElementsOnPage().isEmpty()) {
+                System.out.println("No users on this page.");
+            } else {
+                for (User user : page.getElementsOnPage()) {
+                    System.out.println(user.getId() + " - " + user.getFirstName() + " " + user.getLastName());
+                }
+            }
+            System.out.println("Pagina " + (pageNumber + 1) + " din " + Math.max(1, totalPages));
+            System.out.println("N - Next page");
+            System.out.println("P - Previous page");
+            System.out.println("Q - Back to menu");
+            String option = scanner.nextLine().trim();
+            if (option.equalsIgnoreCase("Q")) {
+                return;
+            }
+            if (option.equalsIgnoreCase("N")) {
+                if ((long) pageNumber + 1 < totalPages) {
+                    pageNumber++;
+                } else {
+                    System.out.println("Already on last page.");
+                }
+            } else if (option.equalsIgnoreCase("P")) {
+                if (pageNumber > 0) {
+                    pageNumber--;
+                } else {
+                    System.out.println("Already on first page.");
+                }
+            } else {
+                System.out.println("Invalid option.");
+            }
+        }
+    }
+    private void showFriendshipsPaginated(int pageSize) {
+        int pageNumber = 0;
+        System.out.print("Enter user ID: ");
+        Long userId = Long.parseLong(scanner.nextLine());
+        while (true) {
+            Page<User> page = service.getFriendsPage(userId, pageNumber, pageSize);
+            long total = page.getTotalNumberOfElements();
+            long totalPages = total / pageSize + (total % pageSize == 0 ? 0 : 1);
+            System.out.println("\nUsers:");
+            if (page.getElementsOnPage().isEmpty()) {
+                System.out.println("No users on this page.");
+            } else {
+                for (User user : page.getElementsOnPage()) {
+                    System.out.println(user.getId() + " - " + user.getFirstName() + " " + user.getLastName());
+                }
+            }
+            System.out.println("Pagina " + (pageNumber + 1) + " din " + Math.max(1, totalPages));
+            System.out.println("N - Next page");
+            System.out.println("P - Previous page");
+            System.out.println("Q - Back to menu");
+            String option = scanner.nextLine().trim();
+            if (option.equalsIgnoreCase("Q")) {
+                return;
+            }
+            if (option.equalsIgnoreCase("N")) {
+                if ((long) pageNumber + 1 < totalPages) {
+                    pageNumber++;
+                } else {
+                    System.out.println("Already on last page.");
+                }
+            } else if (option.equalsIgnoreCase("P")) {
+                if (pageNumber > 0) {
+                    pageNumber--;
+                } else {
+                    System.out.println("Already on first page.");
+                }
+            } else {
+                System.out.println("Invalid option.");
+            }
+        }
     }
     public void run(){
         while(true){

@@ -6,12 +6,15 @@ import java.util.Optional;
 import exceptions.RepositoryException;
 import java.sql.*;
 import java.util.*;
-
+import util.paging.Page;
+import util.paging.Pageable;
+import java.util.ArrayList;
+import java.util.List;
 /**
  * Database repository skeleton for users.
  * Database operations are not implemented in this Laboratory.
  */
-public class UtilizatorDbRepository implements Repository<Long,User>{
+public class UtilizatorDbRepository implements PagingRepository<Long,User>{
     private final Validator<User> validator;
     private final String url;
     private final String username;
@@ -137,6 +140,41 @@ public class UtilizatorDbRepository implements Repository<Long,User>{
             return users;
         }catch(SQLException e){
             throw new RepositoryException("Could not load users: "+e.getMessage(),e);
+        }
+    }
+    /**
+     * Retrives users ordered by ID using SQL pagination.
+     *
+     * @param pageable pagination parameters
+     * @return the requested users and total user count
+     */
+    @Override
+    public Page<User> findAllOnPage(Pageable pageable){
+        List<User> users=new ArrayList<>();
+        String countSql="SELECT COUNT (*) FROM users";
+        String pageSql="SELECT id,first_name,last_name "+"FROM users ORDER BY id LIMIT ? OFFSET ?";
+        try(Connection connection=DriverManager.getConnection(url,username,password)){
+            long total=0;
+            try(PreparedStatement statement=connection.prepareStatement(countSql);
+            ResultSet resultSet=statement.executeQuery()){
+                if(resultSet.next()){
+                    total=resultSet.getLong(1);
+                }
+            }
+            try(PreparedStatement statement=connection.prepareStatement(pageSql)){
+                statement.setInt(1,pageable.getPageSize());
+                long offset=(long) pageable.getPageNumber()*pageable.getPageSize();
+                statement.setLong(2,offset);
+                try(ResultSet resultSet=statement.executeQuery()){
+                    while (resultSet.next()) {
+                        User user = new User(resultSet.getLong("id"), resultSet.getString("first_name"), resultSet.getString("last_name"));
+                        users.add(user);
+                    }
+                }
+            }
+            return new Page<>(users,total);
+        }catch(SQLException e){
+            throw new RepositoryException("Error retrieving users page",e);
         }
     }
 }

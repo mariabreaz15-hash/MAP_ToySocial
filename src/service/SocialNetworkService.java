@@ -2,11 +2,15 @@ package service;
 import domain.Friendship;
 import domain.User;
 import exceptions.ServiceException;
+import repository.PagingRepository;
 import repository.Repository;
 import java.util.*;
 import domain.Tuple;
+import util.paging.Page;
+import util.paging.Pageable;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import repository.FriendshipPagingRepository;
 /**Application use cases and graph algorithms for the social network. */
 public class SocialNetworkService {
     private final Repository<Long,User> users;
@@ -257,5 +261,37 @@ public class SocialNetworkService {
         Predicate<User> combinedCriteria=firstNameCriteria.and(lastNameCriteria).or(idCriteria)
                 .negate();
         return users.findAll(combinedCriteria);
+    }
+    /**
+     * Retrieves a page of users from the database.
+     *
+     * @param pageNumber zero-based page number
+     * @param pageSize number of users per page
+     * @return the requested page of users
+     */
+    public Page<User> getUsersPage(int pageNumber, int pageSize){
+        Pageable pageable=new Pageable(pageNumber,pageSize);
+        if(!(users instanceof PagingRepository)){
+            throw new UnsupportedOperationException("Pagination is available only in database mode.");
+        }
+        @SuppressWarnings("unchecked")
+                PagingRepository<Long,User> pagingRepository=(PagingRepository<Long,User>) users;
+        return pagingRepository.findAllOnPage(pageable);
+    }
+    /**
+     * Retrieves a page of friends for a user.
+     *
+     * @param userId identifier of the user
+     * @param pageNumber zero-based page number
+     * @param pageSize maximum number of friends per page
+     * @return the requested page of friends
+     */
+    public Page<User> getFriendsPage(Long userId,int pageNumber,int pageSize){
+        Pageable pageable=new Pageable(pageNumber,pageSize);
+        if(!(friendships instanceof FriendshipPagingRepository)){
+            throw new UnsupportedOperationException("Pagination is available only in DATABASE mode.");
+        }
+        FriendshipPagingRepository pagingRepository=(FriendshipPagingRepository) friendships;
+        return pagingRepository.findFriendsOnPage(userId,pageable);
     }
 }
