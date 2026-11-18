@@ -18,7 +18,7 @@ public class Pageable {
         if(pageNumber<0){
             throw new IllegalArgumentException("Page number cannot be negative.");
         }
-        if(pageSize<0){
+        if(pageSize<=0){
             throw new IllegalArgumentException("Page size must be positive.");
         }
         this.pageNumber=pageNumber;

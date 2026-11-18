@@ -8,12 +8,27 @@ import util.paging.Page;
 public class ConsoleUI {
     private final SocialNetworkService service;
     private final Scanner scanner=new Scanner(System.in);
-    public ConsoleUI(SocialNetworkService service){this.service=service;}
+    private final int pageSize;
+    private final boolean databaseMode;
+    /**
+     * Creates the console interface.
+     *
+     * @param service social network service
+     * @param pageSize number of elements per page
+     * @param databaseMode whether database repositories are enabled
+     */
+    public ConsoleUI(SocialNetworkService service, int pageSize, boolean databaseMode) {
+        if (pageSize <= 0) {
+            throw new IllegalArgumentException("Page size must be positive.");
+        }
+        this.service = service;
+        this.pageSize = pageSize;
+        this.databaseMode = databaseMode;
+    }
     private long readId(String label){
         System.out.print(label);
         return Long.parseLong(scanner.nextLine().trim());
     }
-
     /**
      * Displays database users with next and previous navigation.
      *
@@ -33,7 +48,11 @@ public class ConsoleUI {
                     System.out.println(user.getId() + " - " + user.getFirstName() + " " + user.getLastName());
                 }
             }
-            System.out.println("Pagina " + (pageNumber + 1) + " din " + Math.max(1, totalPages));
+            if(pageNumber>=totalPages && total>0){
+                System.out.println("Pagina " + (pageNumber + 1) + " - pagina goala (total " + totalPages+" pagini)");
+            }else{
+                System.out.println("Pagina " + (pageNumber + 1) + " din " + Math.max(1, totalPages));
+            }
             System.out.println("N - Next page");
             System.out.println("P - Previous page");
             System.out.println("Q - Back to menu");
@@ -42,10 +61,10 @@ public class ConsoleUI {
                 return;
             }
             if (option.equalsIgnoreCase("N")) {
-                if ((long) pageNumber + 1 < totalPages) {
+                if ((long) pageNumber < totalPages) {
                     pageNumber++;
                 } else {
-                    System.out.println("Already on last page.");
+                    System.out.println("Already on empty page.");
                 }
             } else if (option.equalsIgnoreCase("P")) {
                 if (pageNumber > 0) {
@@ -58,6 +77,12 @@ public class ConsoleUI {
             }
         }
     }
+
+    /**
+     * Displays a user's friends with paginating navigation.
+     *
+     * @param pageSize maximum number of friends per page
+     */
     private void showFriendshipsPaginated(int pageSize) {
         int pageNumber = 0;
         System.out.print("Enter user ID: ");
@@ -66,15 +91,19 @@ public class ConsoleUI {
             Page<User> page = service.getFriendsPage(userId, pageNumber, pageSize);
             long total = page.getTotalNumberOfElements();
             long totalPages = total / pageSize + (total % pageSize == 0 ? 0 : 1);
-            System.out.println("\nUsers:");
+            System.out.println("\nFriends:");
             if (page.getElementsOnPage().isEmpty()) {
-                System.out.println("No users on this page.");
+                System.out.println("No friends on this page.");
             } else {
                 for (User user : page.getElementsOnPage()) {
                     System.out.println(user.getId() + " - " + user.getFirstName() + " " + user.getLastName());
                 }
             }
-            System.out.println("Pagina " + (pageNumber + 1) + " din " + Math.max(1, totalPages));
+            if(pageNumber>=totalPages && total>0){
+                System.out.println("Pagina " + (pageNumber + 1) + " - pagina goala (total " + totalPages+" pagini)");
+            }else{
+                System.out.println("Pagina " + (pageNumber + 1) + " din " + Math.max(1, totalPages));
+            }
             System.out.println("N - Next page");
             System.out.println("P - Previous page");
             System.out.println("Q - Back to menu");
@@ -83,10 +112,10 @@ public class ConsoleUI {
                 return;
             }
             if (option.equalsIgnoreCase("N")) {
-                if ((long) pageNumber + 1 < totalPages) {
+                if ((long) pageNumber < totalPages) {
                     pageNumber++;
                 } else {
-                    System.out.println("Already on last page.");
+                    System.out.println("Already on empty page.");
                 }
             } else if (option.equalsIgnoreCase("P")) {
                 if (pageNumber > 0) {
@@ -104,12 +133,20 @@ public class ConsoleUI {
             System.out.println("\n1.List users 2.Add user 3.Remove user 4.Update user");
             System.out.println("5.Add friendship 6.Remove friendship 7.List friendships");
             System.out.println("8.Number of communities 9.Most sociable community 10.User community 0.Exit");
+            if(databaseMode){
+                System.out.println("11. List friends paginated");
+            }
             System.out.println("Choice: ");
             String choice=scanner.nextLine().trim();
             try{
                 switch(choice){
                     case "1" :
-                        service.getUsersSortedByLastName().forEach(System.out::println);
+                        if(databaseMode){
+                            showUsersPaginated(pageSize);
+                        }else{
+                            service.getUsersSortedByLastName().forEach(System.out::println);
+                        }
+                        //
                         /*for(domain.User user:service.getUsers()){
                             System.out.println(user);
                         }*/
@@ -140,6 +177,13 @@ public class ConsoleUI {
                     case "9" : System.out.println("Most sociable community (IDs): " + service.mostSociableCommunity()); break;
                     case "10" : System.out.println("Community (IDs): "+service.communityOf(readId("ID: "))); break;
                     case "0" : return;
+                    case "11":
+                        if(databaseMode){
+                            showFriendshipsPaginated(5);
+                        }else{
+                            System.out.println("Pagination is available only in DATABASE mode.");
+                        }
+                        break;
                     default : System.out.println("Invalid option."); break;
                 }
             }catch(NumberFormatException ex){

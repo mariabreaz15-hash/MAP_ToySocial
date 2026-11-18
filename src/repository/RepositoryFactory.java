@@ -109,4 +109,33 @@ public class RepositoryFactory {
         }
         return value.trim();
     }
+
+    /**
+     * Returns the configured number of elements per page.
+     *
+     * @return a positive page size
+     * @throws IllegalArgumentException if the configured value is invalid
+     */
+    public int getPageSize() {
+        String value = getRequiredProperty("page.size");
+        int pageSize;
+        try {
+            pageSize = Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("page.size must be an integer.", e);
+        }
+        if (pageSize <= 0) {
+            throw new IllegalArgumentException("page.size must be greater than zero.");
+        }
+        return pageSize;
+    }
+    /**
+     * Checks whether the configured repository type is DATABASE.
+     *
+     * @return true for DATABASE mode, false otherwise
+     */
+    public boolean isDatabaseMode() {
+        return repositoryType == RepositoryType.DATABASE;
+    }
+
 }

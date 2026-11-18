@@ -25,8 +25,11 @@ public class Main {
             Repository<Long,User> users=factory.createUtilizatorRepository(userValidator);
             Repository<Tuple<Long,Long>,Friendship> friendships=factory.createPrietenieRepository(new FriendshipValidator(users));
             SocialNetworkService service=new SocialNetworkService(users,friendships);
-            new ConsoleUI(service).run();
-        }catch(RepositoryException | IllegalStateException e){
+            int pageSize=factory.getPageSize();
+            boolean databaseMode=factory.isDatabaseMode();
+            ConsoleUI ui= new ConsoleUI(service,pageSize,databaseMode);
+            ui.run();
+        }catch(RepositoryException | IllegalStateException | IllegalArgumentException e){
             System.err.println("ERROR: application could not be started.");
             System.err.println(e.getMessage());
         }
